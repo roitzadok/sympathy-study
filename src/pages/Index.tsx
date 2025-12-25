@@ -2,9 +2,28 @@ import { RegistrationForm } from '@/components/RegistrationForm';
 import { VideoExperiment } from '@/components/VideoExperiment';
 import { CompletionScreen } from '@/components/CompletionScreen';
 import { useExperimentStore } from '@/store/experimentStore';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Monitor } from 'lucide-react';
 
 const Index = () => {
   const { currentStep } = useExperimentStore();
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <main className="experiment-container">
+        <div className="experiment-card animate-fade-in text-center">
+          <Monitor className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
+          <h1 className="text-2xl font-semibold text-foreground mb-4">
+            Computer Required
+          </h1>
+          <p className="text-muted-foreground">
+            This experiment requires a computer to participate. Please access this page from a desktop or laptop computer.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="experiment-container">
