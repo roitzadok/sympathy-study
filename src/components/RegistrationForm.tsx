@@ -11,10 +11,15 @@ import { hashEmail, getVideoOrder } from '@/lib/experimentUtils';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
+const phoneRegex = /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/;
+
 const formSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100),
   email: z.string().email('Please enter a valid email address'),
-  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits').max(20),
+  phoneNumber: z.string()
+    .min(10, 'Phone number must be at least 10 digits')
+    .max(20)
+    .regex(phoneRegex, 'Please enter a valid phone number (e.g., +1234567890 or 123-456-7890)'),
 });
 
 type FormData = z.infer<typeof formSchema>;
