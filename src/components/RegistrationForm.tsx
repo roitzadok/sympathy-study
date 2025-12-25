@@ -33,15 +33,50 @@ export function RegistrationForm() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    const normalizedEmail = data.email.toLowerCase().trim();
 
     try {
-      const rotationPair = hashEmail(data.email);
-      const videoOrder = getVideoOrder(data.email);
+      // Check if participant already exists
+      const { data: existingParticipant } = await supabase
+        .from('participants')
+        .select('id')
+        .eq('email', normalizedEmail)
+        .single();
+
+      if (existingParticipant) {
+        // Check if they completed the experiment (4 responses)
+        const { data: responses } = await supabase
+          .from('video_responses')
+          .select('id')
+          .eq('participant_id', existingParticipant.id);
+
+        if (responses && responses.length >= 4) {
+          toast.error('This email has already completed the experiment.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Incomplete - delete old responses and participant
+        await supabase
+          .from('video_responses')
+          .delete()
+          .eq('participant_id', existingParticipant.id);
+
+        await supabase
+          .from('participants')
+          .delete()
+          .eq('id', existingParticipant.id);
+
+        toast.info('Previous incomplete session cleared. Starting fresh.');
+      }
+
+      const rotationPair = hashEmail(normalizedEmail);
+      const videoOrder = getVideoOrder(normalizedEmail);
 
       const { data: participant, error } = await supabase
         .from('participants')
         .insert({
-          email: data.email.toLowerCase().trim(),
+          email: normalizedEmail,
           phone_number: data.phoneNumber,
           full_name: data.fullName,
           rotation_pair: rotationPair,
@@ -50,14 +85,7 @@ export function RegistrationForm() {
         .select()
         .single();
 
-      if (error) {
-        if (error.code === '23505') {
-          toast.error('This email has already been registered for the experiment.');
-        } else {
-          throw error;
-        }
-        return;
-      }
+      if (error) throw error;
 
       setParticipant(participant);
       setCurrentStep(1);
