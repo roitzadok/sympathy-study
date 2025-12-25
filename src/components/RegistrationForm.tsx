@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import InputMask from 'react-input-mask';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,15 +12,12 @@ import { hashEmail, getVideoOrder } from '@/lib/experimentUtils';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
-const phoneRegex = /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/;
-
 const formSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100),
   email: z.string().email('Please enter a valid email address'),
   phoneNumber: z.string()
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(20)
-    .regex(phoneRegex, 'Please enter a valid phone number (e.g., +1234567890 or 123-456-7890)'),
+    .transform(val => val.replace(/[^0-9]/g, ''))
+    .refine(val => val.length >= 10, 'Phone number must be at least 10 digits'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -31,6 +29,7 @@ export function RegistrationForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -134,12 +133,28 @@ export function RegistrationForm() {
 
       <div className="space-y-2">
         <Label htmlFor="phoneNumber">Phone Number</Label>
-        <Input
-          id="phoneNumber"
-          type="tel"
-          placeholder="Enter your phone number"
-          {...register('phoneNumber')}
-          className={errors.phoneNumber ? 'border-destructive' : ''}
+        <Controller
+          name="phoneNumber"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <InputMask
+              mask="(999) 999-9999"
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+            >
+              {(inputProps: React.InputHTMLAttributes<HTMLInputElement>) => (
+                <Input
+                  {...inputProps}
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="(123) 456-7890"
+                  className={errors.phoneNumber ? 'border-destructive' : ''}
+                />
+              )}
+            </InputMask>
+          )}
         />
         {errors.phoneNumber && (
           <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>
