@@ -4,8 +4,8 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { SympathyRating } from '@/components/SympathyRating';
 import { ProgressBar } from '@/components/ProgressBar';
 import { useExperimentStore } from '@/store/experimentStore';
-import { shouldRotateVideo, VIDEO_DATA } from '@/lib/experimentUtils';
-import { supabase } from '@/integrations/supabase/client';
+import { shouldRotateVideo } from '@/lib/experimentUtils';
+import { azureApi } from '@/hooks/useAzureApi';
 import { toast } from 'sonner';
 import { Loader2, ArrowRight, CheckCircle } from 'lucide-react';
 
@@ -31,7 +31,7 @@ export function VideoExperiment() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('video_responses').insert({
+      const { error } = await azureApi.createVideoResponse({
         participant_id: participant.id,
         video_index: videoIndex,
         was_rotated: isRotated,
@@ -39,7 +39,7 @@ export function VideoExperiment() {
         presentation_order: currentStep,
       });
 
-      if (error) throw error;
+      if (error) throw new Error(error);
 
       addResponse({
         videoIndex,

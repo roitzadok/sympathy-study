@@ -5,11 +5,11 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
 import { useExperimentStore } from '@/store/experimentStore';
 import { hashEmail, getVideoOrder } from '@/lib/experimentUtils';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { azureApi } from '@/hooks/useAzureApi';
 
 const phoneRegex = /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/;
 
@@ -41,19 +41,20 @@ export function RegistrationForm() {
     const normalizedEmail = data.email.toLowerCase().trim();
 
     try {
-      // Check if participant already exists
-      const { data: existingParticipant } = await supabase
-        .from('participants')
-        .select('id')
-        .eq('email', normalizedEmail)
-        .single();
+      // Check if participant already exists in Azure
+      const { data: existingParticipant, error: fetchError } = await azureApi.getParticipantByEmail(normalizedEmail);
+
+      if (fetchError) {
+        throw new Error(fetchError);
+      }
 
       if (existingParticipant) {
         // Check if they completed the experiment (4 responses)
-        const { data: responses } = await supabase
-          .from('video_responses')
-          .select('id')
-          .eq('participant_id', existingParticipant.id);
+        const { data: responses, error: responsesError } = await azureApi.getResponsesByParticipant(existingParticipant.id);
+
+        if (responsesError) {
+          throw new Error(responsesError);
+        }
 
         if (responses && responses.length >= 4) {
           toast.error('This email has already completed the experiment.');
@@ -62,15 +63,8 @@ export function RegistrationForm() {
         }
 
         // Incomplete - delete old responses and participant
-        await supabase
-          .from('video_responses')
-          .delete()
-          .eq('participant_id', existingParticipant.id);
-
-        await supabase
-          .from('participants')
-          .delete()
-          .eq('id', existingParticipant.id);
+        await azureApi.deleteResponsesByParticipant(existingParticipant.id);
+        await azureApi.deleteParticipant(existingParticipant.id);
 
         toast.info('Previous incomplete session cleared. Starting fresh.');
       }
@@ -78,19 +72,16 @@ export function RegistrationForm() {
       const rotationPair = hashEmail(normalizedEmail);
       const videoOrder = getVideoOrder(normalizedEmail);
 
-      const { data: participant, error } = await supabase
-        .from('participants')
-        .insert({
-          email: normalizedEmail,
-          phone_number: data.phoneNumber,
-          full_name: data.fullName,
-          rotation_pair: rotationPair,
-          video_order: videoOrder,
-        })
-        .select()
-        .single();
+      const { data: participant, error: createError } = await azureApi.createParticipant({
+        email: normalizedEmail,
+        phone_number: data.phoneNumber,
+        full_name: data.fullName,
+        rotation_pair: rotationPair,
+        video_order: videoOrder,
+      });
 
-      if (error) throw error;
+      if (createError) throw new Error(createError);
+      if (!participant) throw new Error('Failed to create participant');
 
       setParticipant(participant);
       setCurrentStep(1);
