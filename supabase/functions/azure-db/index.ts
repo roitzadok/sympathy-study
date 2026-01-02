@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const connectionString = Deno.env.get('AZURE_POSTGRES_CONNECTION_STRING');
+const connectionString = Deno.env.get('AZURE_DATABASE_URL');
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -16,11 +16,19 @@ serve(async (req) => {
   }
 
   if (!connectionString) {
-    console.error('AZURE_POSTGRES_CONNECTION_STRING is not set');
+    console.error('AZURE_DATABASE_URL is not set');
     return new Response(
       JSON.stringify({ error: 'Database connection not configured' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+  }
+  
+  // Log connection info (without password) for debugging
+  try {
+    const url = new URL(connectionString);
+    console.log('Connecting to:', url.hostname, 'as user:', url.username, 'database:', url.pathname.slice(1));
+  } catch (e) {
+    console.log('Connection string format check failed');
   }
 
   let sql;
