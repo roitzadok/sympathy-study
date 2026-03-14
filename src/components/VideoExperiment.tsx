@@ -70,7 +70,7 @@ export function VideoExperiment() {
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-foreground mb-2">
-          Video {currentStep} of 4
+          Video {currentStep} of 6
         </h2>
         <p className="text-muted-foreground text-sm">
           Please watch the entire video, then rate how sympathetic you felt towards the person shown.
