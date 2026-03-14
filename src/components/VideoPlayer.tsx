@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Play, Volume2, VolumeX } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface VideoPlayerProps {
@@ -8,14 +8,23 @@ interface VideoPlayerProps {
   onVideoEnd: () => void;
 }
 
+const VIDEO_SOURCES: Record<number, string | null> = {
+  0: '/videos/video-0.mp4',
+  1: null,
+  2: null,
+  3: null,
+};
+
 export function VideoPlayer({ videoId, isRotated, onVideoEnd }: VideoPlayerProps) {
+  const videoSrc = VIDEO_SOURCES[videoId];
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [hasEnded, setHasEnded] = useState(false);
 
-  // Simulate video playback (10 seconds for demo)
+  // Simulated playback for placeholder videos
   useEffect(() => {
-    if (!isPlaying || hasEnded) return;
+    if (videoSrc || !isPlaying || hasEnded) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -26,17 +35,32 @@ export function VideoPlayer({ videoId, isRotated, onVideoEnd }: VideoPlayerProps
           onVideoEnd();
           return 100;
         }
-        return prev + 2; // 2% every 200ms = 10 seconds total
+        return prev + 2;
       });
     }, 200);
 
     return () => clearInterval(interval);
-  }, [isPlaying, hasEnded, onVideoEnd]);
+  }, [videoSrc, isPlaying, hasEnded, onVideoEnd]);
 
   const handlePlay = () => {
-    if (!hasEnded) {
-      setIsPlaying(true);
+    if (hasEnded) return;
+    setIsPlaying(true);
+    if (videoSrc && videoRef.current) {
+      videoRef.current.play();
     }
+  };
+
+  const handleTimeUpdate = () => {
+    const v = videoRef.current;
+    if (v && v.duration) {
+      setProgress((v.currentTime / v.duration) * 100);
+    }
+  };
+
+  const handleVideoEnded = () => {
+    setHasEnded(true);
+    setIsPlaying(false);
+    onVideoEnd();
   };
 
   return (
@@ -46,16 +70,26 @@ export function VideoPlayer({ videoId, isRotated, onVideoEnd }: VideoPlayerProps
         isRotated && "video-rotate-15"
       )}
     >
-      {/* Video placeholder */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center text-primary-foreground/80">
-          <p className="text-lg font-medium mb-2">Video {videoId + 1}</p>
-          <p className="text-sm opacity-60">Placeholder for interview clip</p>
-          {isRotated && (
-            <p className="text-xs mt-2 opacity-40">(Displayed at 15° angle)</p>
-          )}
+      {videoSrc ? (
+        <video
+          ref={videoRef}
+          src={videoSrc}
+          className="w-full h-full object-cover"
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleVideoEnded}
+          playsInline
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-primary-foreground/80">
+            <p className="text-lg font-medium mb-2">Video {videoId + 1}</p>
+            <p className="text-sm opacity-60">Placeholder for interview clip</p>
+            {isRotated && (
+              <p className="text-xs mt-2 opacity-40">(Displayed at 15° angle)</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Play button overlay */}
       {!isPlaying && !hasEnded && (
