@@ -46,9 +46,9 @@ const Index = () => {
         </div>
       )}
 
-      {currentStep >= 1 && currentStep <= 4 && <VideoExperiment />}
+      {currentStep >= 1 && currentStep <= 6 && <VideoExperiment />}
 
-      {currentStep === 5 && <CompletionScreen />}
+      {currentStep === 7 && <CompletionScreen />}
     </main>
   );
 };
