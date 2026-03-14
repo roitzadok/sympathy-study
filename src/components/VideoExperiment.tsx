@@ -48,8 +48,8 @@ export function VideoExperiment() {
         presentationOrder: currentStep,
       });
 
-      if (isLastVideo) {
-        setCurrentStep(5); // Completed state
+        if (isLastVideo) {
+          setCurrentStep(7); // Completed state
         toast.success('Thank you for completing the experiment!');
       } else {
         setCurrentStep(currentStep + 1);

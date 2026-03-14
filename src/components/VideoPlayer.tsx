@@ -10,9 +10,11 @@ interface VideoPlayerProps {
 
 const VIDEO_SOURCES: Record<number, string | null> = {
   0: '/videos/video-0.mp4',
-  1: null,
-  2: null,
-  3: null,
+  1: '/videos/video-1.mp4',
+  2: '/videos/video-2.mp4',
+  3: '/videos/video-3.mp4',
+  4: '/videos/video-4.mp4',
+  5: null,
 };
 
 export function VideoPlayer({ videoId, isRotated, onVideoEnd }: VideoPlayerProps) {

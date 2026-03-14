@@ -18,7 +18,7 @@ interface VideoResponse {
 
 interface ExperimentState {
   participant: Participant | null;
-  currentStep: number; // 0 = registration, 1-4 = video pages
+  currentStep: number; // 0 = registration, 1-6 = video pages, 7 = complete
   responses: VideoResponse[];
   setParticipant: (participant: Participant) => void;
   setCurrentStep: (step: number) => void;

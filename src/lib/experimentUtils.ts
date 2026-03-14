@@ -1,17 +1,26 @@
 // Rotation pairs: which two videos get rotated (0-indexed)
-// 0: (0,1), 1: (0,2), 2: (0,3), 3: (1,2), 4: (1,3), 5: (2,3)
+// C(6,2) = 15 pairs
 export const ROTATION_PAIRS: [number, number][] = [
   [0, 1],
   [0, 2],
   [0, 3],
+  [0, 4],
+  [0, 5],
   [1, 2],
   [1, 3],
+  [1, 4],
+  [1, 5],
   [2, 3],
+  [2, 4],
+  [2, 5],
+  [3, 4],
+  [3, 5],
+  [4, 5],
 ];
 
 /**
  * Simple hash function for email to determine rotation pair
- * Returns a number 0-5
+ * Returns a number 0-14
  */
 export function hashEmail(email: string): number {
   let hash = 0;
@@ -23,7 +32,7 @@ export function hashEmail(email: string): number {
     hash = hash & hash; // Convert to 32-bit integer
   }
   
-  return Math.abs(hash) % 6;
+  return Math.abs(hash) % 15;
 }
 
 /**
@@ -72,7 +81,7 @@ export function seededShuffle<T>(array: T[], seed: string): T[] {
  * Get randomized video order for a participant
  */
 export function getVideoOrder(email: string): number[] {
-  const videos = [0, 1, 2, 3];
+  const videos = [0, 1, 2, 3, 4, 5];
   return seededShuffle(videos, email.toLowerCase().trim());
 }
 
@@ -84,4 +93,6 @@ export const VIDEO_DATA = [
   { id: 1, title: "Video 2", placeholder: "Interview Clip 2" },
   { id: 2, title: "Video 3", placeholder: "Interview Clip 3" },
   { id: 3, title: "Video 4", placeholder: "Interview Clip 4" },
+  { id: 4, title: "Video 5", placeholder: "Interview Clip 5" },
+  { id: 5, title: "Video 6", placeholder: "Interview Clip 6" },
 ];
