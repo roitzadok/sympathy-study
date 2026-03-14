@@ -19,7 +19,7 @@ export function VideoExperiment() {
 
   const videoIndex = participant.video_order[currentStep - 1];
   const isRotated = shouldRotateVideo(participant.email, videoIndex);
-  const isLastVideo = currentStep === 4;
+  const isLastVideo = currentStep === 6;
 
   const handleVideoEnd = useCallback(() => {
     setVideoEnded(true);
