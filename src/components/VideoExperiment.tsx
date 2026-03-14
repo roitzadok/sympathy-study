@@ -66,7 +66,7 @@ export function VideoExperiment() {
 
   return (
     <div className="experiment-card animate-fade-in">
-      <ProgressBar current={currentStep} total={4} />
+      <ProgressBar current={currentStep} total={6} />
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-foreground mb-2">
