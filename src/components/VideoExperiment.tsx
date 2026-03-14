@@ -19,7 +19,7 @@ export function VideoExperiment() {
 
   const videoIndex = participant.video_order[currentStep - 1];
   const isRotated = shouldRotateVideo(participant.email, videoIndex);
-  const isLastVideo = currentStep === 4;
+  const isLastVideo = currentStep === 6;
 
   const handleVideoEnd = useCallback(() => {
     setVideoEnded(true);
@@ -48,8 +48,8 @@ export function VideoExperiment() {
         presentationOrder: currentStep,
       });
 
-      if (isLastVideo) {
-        setCurrentStep(5); // Completed state
+        if (isLastVideo) {
+          setCurrentStep(7); // Completed state
         toast.success('Thank you for completing the experiment!');
       } else {
         setCurrentStep(currentStep + 1);
@@ -66,11 +66,11 @@ export function VideoExperiment() {
 
   return (
     <div className="experiment-card animate-fade-in">
-      <ProgressBar current={currentStep} total={4} />
+      <ProgressBar current={currentStep} total={6} />
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-foreground mb-2">
-          Video {currentStep} of 4
+          Video {currentStep} of 6
         </h2>
         <p className="text-muted-foreground text-sm">
           Please watch the entire video, then rate how sympathetic you felt towards the person shown.

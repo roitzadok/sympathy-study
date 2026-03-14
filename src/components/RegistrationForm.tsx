@@ -56,7 +56,7 @@ export function RegistrationForm() {
           throw new Error(responsesError);
         }
 
-        if (responses && responses.length >= 4) {
+        if (responses && responses.length >= 6) {
           toast.error('This email has already completed the experiment.');
           setIsSubmitting(false);
           return;
