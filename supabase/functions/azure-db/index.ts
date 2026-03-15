@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import postgres from "https://deno.land/x/postgresjs@v3.4.4/mod.js";
+import { DefaultAzureCredential } from "npm:@azure/identity@4.7.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,6 +9,35 @@ const corsHeaders = {
 };
 
 const connectionString = Deno.env.get('AZURE_DATABASE_URL');
+
+async function getConnectionWithTokenAuth(connUrl: URL): Promise<ReturnType<typeof postgres> | null> {
+  try {
+    console.log('Attempting DefaultAzureCredential token-based auth...');
+    const credential = new DefaultAzureCredential();
+    const token = await credential.getToken('https://ossrdbms-aad.database.windows.net/.default');
+    
+    if (token?.token) {
+      console.log('Successfully obtained Azure AD token');
+      const sql = postgres({
+        host: connUrl.hostname,
+        port: parseInt(connUrl.port || '5432'),
+        database: connUrl.pathname.slice(1),
+        username: connUrl.username,
+        password: token.token,
+        ssl: { rejectUnauthorized: false },
+        max: 1,
+        idle_timeout: 20,
+      });
+      // Test the connection
+      await sql`SELECT 1`;
+      console.log('Token-based connection successful');
+      return sql;
+    }
+  } catch (e) {
+    console.log('DefaultAzureCredential failed, will fall back to password:', e instanceof Error ? e.message : String(e));
+  }
+  return null;
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -23,21 +53,31 @@ serve(async (req) => {
     );
   }
   
-  // Log connection info (without password) for debugging
+  let connUrl: URL;
   try {
-    const url = new URL(connectionString);
-    console.log('Connecting to:', url.hostname, 'as user:', url.username, 'database:', url.pathname.slice(1));
+    connUrl = new URL(connectionString);
+    console.log('Connecting to:', connUrl.hostname, 'as user:', connUrl.username, 'database:', connUrl.pathname.slice(1));
   } catch (e) {
     console.log('Connection string format check failed');
+    return new Response(
+      JSON.stringify({ error: 'Invalid connection string format' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
   let sql;
   try {
-    sql = postgres(connectionString, {
-      ssl: { rejectUnauthorized: false },
-      max: 1,
-      idle_timeout: 20,
-    });
+    // Try DefaultAzureCredential first, fall back to password
+    sql = await getConnectionWithTokenAuth(connUrl);
+    
+    if (!sql) {
+      console.log('Falling back to password-based auth');
+      sql = postgres(connectionString, {
+        ssl: { rejectUnauthorized: false },
+        max: 1,
+        idle_timeout: 20,
+      });
+    }
 
     const { action, data } = await req.json();
     console.log('Received action:', action, 'with data:', JSON.stringify(data));
