@@ -129,6 +129,8 @@ export function VideoExperiment() {
           Click play and watch the full video to continue
         </p>
       )}
+
+      <p className="text-center text-muted-foreground/40 text-[10px] mt-6">id:{videoIndex}</p>
     </div>
   );
 }
