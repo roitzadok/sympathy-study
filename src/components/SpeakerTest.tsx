@@ -41,7 +41,7 @@ export function SpeakerTest() {
         Please turn your speakers up before continuing. Use the button below to play a test tone and ensure you can hear it clearly.
       </p>
 
-      <audio ref={audioRef} src="/audio/test-tone.wav" onEnded={handleEnded} />
+      <audio ref={audioRef} src="/audio/test-tone.mp3" onEnded={handleEnded} />
 
       <div className="flex justify-center gap-3 mb-8">
         {!isPlaying ? (
