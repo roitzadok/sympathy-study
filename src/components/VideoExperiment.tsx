@@ -19,6 +19,13 @@ export function VideoExperiment() {
     setVideoEnded(true);
   }, []);
 
+  if (!participant) return null;
+
+  const videoStep = currentStep - 1; // steps 2-7 map to video steps 1-6
+  const videoIndex = participant.video_order[videoStep - 1];
+  const isRotated = shouldRotateVideo(participant.email, videoIndex);
+  const isLastVideo = videoStep === 6;
+
   const handleSubmit = async () => {
     if (rating === null) return;
 
