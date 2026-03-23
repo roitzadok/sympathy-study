@@ -46,7 +46,7 @@ export function VideoExperiment() {
         videoIndex,
         wasRotated: isRotated,
         sympathyRating: rating,
-        presentationOrder: currentStep,
+        presentationOrder: videoStep,
       });
 
         if (isLastVideo) {
