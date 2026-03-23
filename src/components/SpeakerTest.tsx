@@ -38,7 +38,7 @@ export function SpeakerTest() {
         Speaker Check
       </h1>
       <p className="text-muted-foreground mb-8">
-        Please turn your speakers up before continuing. Use the button below to play a test tone and ensure you can hear it clearly.
+        Please turn your speakers up before continuing. Use the button below to play a sound and ensure you can hear it clearly.
       </p>
 
       <audio ref={audioRef} src="/audio/test-tone.mp3" onEnded={handleEnded} />
