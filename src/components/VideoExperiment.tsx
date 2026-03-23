@@ -50,7 +50,7 @@ export function VideoExperiment() {
       });
 
         if (isLastVideo) {
-          setCurrentStep(7); // Completed state
+          setCurrentStep(8); // Completed state
         toast.success('Thank you for completing the experiment!');
       } else {
         setCurrentStep(currentStep + 1);
