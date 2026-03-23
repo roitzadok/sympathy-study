@@ -60,7 +60,7 @@ export function SpeakerTest() {
       {hasPlayed && (
         <div className="animate-fade-in">
           <p className="text-sm text-muted-foreground mb-4">
-            Could you hear the tone? If so, you're ready to continue.
+            can you hear the speaker clearly? If so, you're ready to continue (no need to listen to the full audio).
           </p>
           <Button onClick={() => setCurrentStep(2)} className="w-full">
             Continue
