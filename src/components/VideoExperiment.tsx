@@ -80,7 +80,7 @@ export function VideoExperiment() {
 
       <div className={`mb-8 ${isRotated ? 'py-8 px-4' : ''}`}>
         <VideoPlayer
-          key={`video-${currentStep}`}
+          key={`video-${videoStep}`}
           videoId={videoIndex}
           isRotated={isRotated}
           onVideoEnd={handleVideoEnd}
