@@ -1,4 +1,5 @@
 import { RegistrationForm } from '@/components/RegistrationForm';
+import { SpeakerTest } from '@/components/SpeakerTest';
 import { VideoExperiment } from '@/components/VideoExperiment';
 import { CompletionScreen } from '@/components/CompletionScreen';
 import { useExperimentStore } from '@/store/experimentStore';
@@ -46,9 +47,11 @@ const Index = () => {
         </div>
       )}
 
-      {currentStep >= 1 && currentStep <= 6 && <VideoExperiment />}
+      {currentStep === 1 && <SpeakerTest />}
 
-      {currentStep === 7 && <CompletionScreen />}
+      {currentStep >= 2 && currentStep <= 7 && <VideoExperiment />}
+
+      {currentStep === 8 && <CompletionScreen />}
     </main>
   );
 };

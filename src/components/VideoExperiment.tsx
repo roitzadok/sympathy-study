@@ -15,15 +15,16 @@ export function VideoExperiment() {
   const [rating, setRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!participant) return null;
-
-  const videoIndex = participant.video_order[currentStep - 1];
-  const isRotated = shouldRotateVideo(participant.email, videoIndex);
-  const isLastVideo = currentStep === 6;
-
   const handleVideoEnd = useCallback(() => {
     setVideoEnded(true);
   }, []);
+
+  if (!participant) return null;
+
+  const videoStep = currentStep - 1; // steps 2-7 map to video steps 1-6
+  const videoIndex = participant.video_order[videoStep - 1];
+  const isRotated = shouldRotateVideo(participant.email, videoIndex);
+  const isLastVideo = videoStep === 6;
 
   const handleSubmit = async () => {
     if (rating === null) return;
@@ -36,7 +37,7 @@ export function VideoExperiment() {
         video_index: videoIndex,
         was_rotated: isRotated,
         sympathy_rating: rating,
-        presentation_order: currentStep,
+        presentation_order: videoStep,
       });
 
       if (error) throw new Error(error);
@@ -45,11 +46,11 @@ export function VideoExperiment() {
         videoIndex,
         wasRotated: isRotated,
         sympathyRating: rating,
-        presentationOrder: currentStep,
+        presentationOrder: videoStep,
       });
 
         if (isLastVideo) {
-          setCurrentStep(7); // Completed state
+          setCurrentStep(8); // Completed state
         toast.success('Thank you for completing the experiment!');
       } else {
         setCurrentStep(currentStep + 1);
@@ -66,11 +67,11 @@ export function VideoExperiment() {
 
   return (
     <div className="experiment-card animate-fade-in">
-      <ProgressBar current={currentStep} total={6} />
+      <ProgressBar current={videoStep} total={6} />
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-foreground mb-2">
-          Video {currentStep} of 6
+          Video {videoStep} of 6
         </h2>
         <p className="text-muted-foreground text-sm">
           Please watch the entire video, then rate how sympathetic you felt towards the person shown.
@@ -79,7 +80,7 @@ export function VideoExperiment() {
 
       <div className={`mb-8 ${isRotated ? 'py-8 px-4' : ''}`}>
         <VideoPlayer
-          key={`video-${currentStep}`}
+          key={`video-${videoStep}`}
           videoId={videoIndex}
           isRotated={isRotated}
           onVideoEnd={handleVideoEnd}
