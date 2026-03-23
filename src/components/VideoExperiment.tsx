@@ -37,7 +37,7 @@ export function VideoExperiment() {
         video_index: videoIndex,
         was_rotated: isRotated,
         sympathy_rating: rating,
-        presentation_order: currentStep,
+        presentation_order: videoStep,
       });
 
       if (error) throw new Error(error);
