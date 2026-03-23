@@ -1,4 +1,5 @@
 import { RegistrationForm } from '@/components/RegistrationForm';
+import { SpeakerTest } from '@/components/SpeakerTest';
 import { VideoExperiment } from '@/components/VideoExperiment';
 import { CompletionScreen } from '@/components/CompletionScreen';
 import { useExperimentStore } from '@/store/experimentStore';
