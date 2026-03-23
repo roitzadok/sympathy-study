@@ -38,7 +38,7 @@ export function SpeakerTest() {
         Speaker Check
       </h1>
       <p className="text-muted-foreground mb-8">
-        Please turn your speakers up before continuing. Use the button below to play a test tone and ensure you can hear it clearly.
+        Please turn your speakers up before continuing. Use the button below to play a sound and ensure you can hear it clearly.
       </p>
 
       <audio ref={audioRef} src="/audio/test-tone.mp3" onEnded={handleEnded} />
@@ -60,7 +60,7 @@ export function SpeakerTest() {
       {hasPlayed && (
         <div className="animate-fade-in">
           <p className="text-sm text-muted-foreground mb-4">
-            Could you hear the tone? If so, you're ready to continue.
+            can you hear the speaker clearly? If so, you're ready to continue (no need to listen to the full audio).
           </p>
           <Button onClick={() => setCurrentStep(2)} className="w-full">
             Continue
