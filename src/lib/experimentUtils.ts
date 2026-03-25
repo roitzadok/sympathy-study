@@ -1,26 +1,31 @@
-// Rotation pairs: which two videos get rotated (0-indexed)
-// C(6,2) = 15 pairs
-export const ROTATION_PAIRS: [number, number][] = [
-  [0, 1],
-  [0, 2],
-  [0, 3],
-  [0, 4],
-  [0, 5],
-  [1, 2],
-  [1, 3],
-  [1, 4],
-  [1, 5],
-  [2, 3],
-  [2, 4],
-  [2, 5],
-  [3, 4],
-  [3, 5],
-  [4, 5],
+// Rotation triplets: which three videos get rotated (0-indexed)
+// C(6,3) = 20 triplets
+export const ROTATION_TRIPLETS: [number, number, number][] = [
+  [0, 1, 2],
+  [0, 1, 3],
+  [0, 1, 4],
+  [0, 1, 5],
+  [0, 2, 3],
+  [0, 2, 4],
+  [0, 2, 5],
+  [0, 3, 4],
+  [0, 3, 5],
+  [0, 4, 5],
+  [1, 2, 3],
+  [1, 2, 4],
+  [1, 2, 5],
+  [1, 3, 4],
+  [1, 3, 5],
+  [1, 4, 5],
+  [2, 3, 4],
+  [2, 3, 5],
+  [2, 4, 5],
+  [3, 4, 5],
 ];
 
 /**
- * Simple hash function for email to determine rotation pair
- * Returns a number 0-14
+ * Simple hash function for email to determine rotation triplet
+ * Returns a number 0-19
  */
 export function hashEmail(email: string): number {
   let hash = 0;
@@ -32,23 +37,23 @@ export function hashEmail(email: string): number {
     hash = hash & hash; // Convert to 32-bit integer
   }
   
-  return Math.abs(hash) % 15;
+  return Math.abs(hash) % 20;
 }
 
 /**
  * Get which video indices should be rotated based on email
  */
-export function getRotatedVideos(email: string): [number, number] {
-  const pairIndex = hashEmail(email);
-  return ROTATION_PAIRS[pairIndex];
+export function getRotatedVideos(email: string): [number, number, number] {
+  const tripletIndex = hashEmail(email);
+  return ROTATION_TRIPLETS[tripletIndex];
 }
 
 /**
  * Check if a video index should be rotated
  */
 export function shouldRotateVideo(email: string, videoIndex: number): boolean {
-  const [first, second] = getRotatedVideos(email);
-  return videoIndex === first || videoIndex === second;
+  const [first, second, third] = getRotatedVideos(email);
+  return videoIndex === first || videoIndex === second || videoIndex === third;
 }
 
 /**
