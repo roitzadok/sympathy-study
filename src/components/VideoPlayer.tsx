@@ -123,10 +123,6 @@ export function VideoPlayer({ videoId, isRotated, onVideoEnd }: VideoPlayerProps
           >
             Skip
           </button>
-          <div className="flex items-center gap-2 bg-foreground/50 rounded-full px-3 py-1">
-            <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
-            <span className="text-xs text-primary-foreground font-medium">Playing</span>
-          </div>
         </div>
       )}
 
