@@ -109,19 +109,16 @@ export function VideoPlayer({ videoId, isRotated, onVideoEnd }: VideoPlayerProps
       {isPlaying && (
         <div className="absolute top-4 right-4 flex items-center gap-2">
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               if (videoSrc && videoRef.current) {
                 videoRef.current.pause();
-                setProgress(100);
-                setHasEnded(true);
-                setIsPlaying(false);
-                onVideoEnd();
-              } else {
-                setProgress(100);
-                setHasEnded(true);
-                setIsPlaying(false);
-                onVideoEnd();
+                videoRef.current.src = '';
               }
+              setProgress(100);
+              setHasEnded(true);
+              setIsPlaying(false);
+              onVideoEnd();
             }}
             className="bg-foreground/50 hover:bg-foreground/70 rounded-full px-3 py-1 text-xs text-primary-foreground font-medium transition-colors"
           >
