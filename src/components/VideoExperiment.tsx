@@ -74,7 +74,7 @@ export function VideoExperiment() {
           Video {videoStep} of 6
         </h2>
         <p className="text-muted-foreground text-sm">
-          Please watch the entire video, then rate how sympathetic you felt towards the person shown.
+          Please watch the entire video, then rate how connected you felt to the person shown.
         </p>
       </div>
 
