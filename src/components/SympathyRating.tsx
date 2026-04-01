@@ -13,8 +13,8 @@ export function SympathyRating({ value, onChange, disabled }: SympathyRatingProp
   return (
     <div className="space-y-4">
       <div className="flex justify-between text-sm text-muted-foreground">
-        <span>Not sympathetic</span>
-        <span>Very sympathetic</span>
+        <span>Not connected</span>
+        <span>Very connected</span>
       </div>
       <div className="flex gap-2 justify-center">
         {Array.from({ length: 10 }, (_, i) => i + 1).map((rating) => {
