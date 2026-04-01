@@ -91,7 +91,7 @@ export function VideoExperiment() {
         <div className="space-y-6 animate-fade-in">
           <div>
             <h3 className="text-lg font-medium text-foreground mb-4">
-              How sympathetic did you feel towards the person in this video?
+              How connected did you feel to the person in this video?
             </h3>
             <SympathyRating
               value={rating}
