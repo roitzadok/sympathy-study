@@ -111,7 +111,11 @@ export function VideoPlayer({ videoId, isRotated, onVideoEnd }: VideoPlayerProps
           <button
             onClick={() => {
               if (videoSrc && videoRef.current) {
-                videoRef.current.currentTime = videoRef.current.duration;
+                videoRef.current.pause();
+                setProgress(100);
+                setHasEnded(true);
+                setIsPlaying(false);
+                onVideoEnd();
               } else {
                 setProgress(100);
                 setHasEnded(true);
