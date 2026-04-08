@@ -28,7 +28,6 @@ async function getDatabaseConnection() {
 
   const connectionString = process.env.AZURE_DATABASE_URL;
   const databaseUser = process.env.AZURE_DATABASE_USER;
-  const appName = process.env.APP_NAME;
   const databasePassword = process.env.AZURE_DATABASE_PASSWORD;
 
   if (!connectionString) {
@@ -48,13 +47,13 @@ async function getDatabaseConnection() {
     const credential = new DefaultAzureCredential();
     const token = await credential.getToken('https://ossrdbms-aad.database.windows.net/.default');
 
-    if (token?.token && appName) {
+    if (token?.token && username) {
       console.log('Successfully obtained Azure AD token');
       sql = postgres({
         host,
         port: portNumber,
         database,
-        username: appName,
+        username,
         password: token.token,
         ssl: { rejectUnauthorized: false },
         max: 10,
