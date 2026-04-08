@@ -1,5 +1,3 @@
-import { supabase } from '@/integrations/supabase/client';
-
 interface Participant {
   id: string;
   email: string;
@@ -25,25 +23,26 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-async function callAzureApi<T>(action: string, data: Record<string, unknown>): Promise<ApiResponse<T>> {
+async function callApi<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
   try {
-    const { data: response, error } = await supabase.functions.invoke('azure-db', {
-      body: { action, data },
+    const baseUrl = import.meta.env.DEV ? 'http://localhost:8080' : '';
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+      ...options,
     });
 
-    if (error) {
-      console.error('Azure API error:', error);
-      return { error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      return { error: errorData.error || `HTTP ${response.status}` };
     }
 
-    if (response?.error) {
-      console.error('Azure DB error:', response.error);
-      return { error: response.error };
-    }
-
-    return { data: response?.data };
+    const data = await response.json();
+    return { data: data.data };
   } catch (err) {
-    console.error('Unexpected error:', err);
+    console.error('API error:', err);
     return { error: err instanceof Error ? err.message : 'Unknown error occurred' };
   }
 }
@@ -51,7 +50,7 @@ async function callAzureApi<T>(action: string, data: Record<string, unknown>): P
 export const azureApi = {
   // Participants
   getParticipantByEmail: (email: string) =>
-    callAzureApi<Participant | null>('get_participant_by_email', { email }),
+    callApi<Participant | null>(`/api/participants?email=${encodeURIComponent(email)}`),
 
   createParticipant: (participant: {
     email: string;
@@ -59,14 +58,19 @@ export const azureApi = {
     full_name: string;
     rotation_pair: number;
     video_order: number[];
-  }) => callAzureApi<Participant>('create_participant', participant),
+  }) => callApi<Participant>('/api/participants', {
+    method: 'POST',
+    body: JSON.stringify(participant),
+  }),
 
   deleteParticipant: (id: string) =>
-    callAzureApi<{ success: boolean }>('delete_participant', { id }),
+    callApi<{ success: boolean }>(`/api/participants/${id}`, {
+      method: 'DELETE',
+    }),
 
   // Video Responses
   getResponsesByParticipant: (participant_id: string) =>
-    callAzureApi<VideoResponse[]>('get_responses_by_participant', { participant_id }),
+    callApi<VideoResponse[]>(`/api/video-responses?participant_id=${participant_id}`),
 
   createVideoResponse: (response: {
     participant_id: string;
@@ -74,10 +78,15 @@ export const azureApi = {
     was_rotated: boolean;
     sympathy_rating: number;
     presentation_order: number;
-  }) => callAzureApi<VideoResponse>('create_video_response', response),
+  }) => callApi<VideoResponse>('/api/video-responses', {
+    method: 'POST',
+    body: JSON.stringify(response),
+  }),
 
   deleteResponsesByParticipant: (participant_id: string) =>
-    callAzureApi<{ success: boolean }>('delete_responses_by_participant', { participant_id }),
+    callApi<{ success: boolean }>(`/api/video-responses?participant_id=${participant_id}`, {
+      method: 'DELETE',
+    }),
 };
 
 export type { Participant, VideoResponse };
