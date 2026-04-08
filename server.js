@@ -54,7 +54,7 @@ async function getDatabaseConnection() {
         host,
         port: portNumber,
         database,
-        appName,
+        username: appName,
         password: token.token,
         ssl: { rejectUnauthorized: false },
         max: 10,
