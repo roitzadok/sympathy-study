@@ -23,12 +23,17 @@ console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
 // Database connection
 let sql = null;
 
+function getOidFromToken(token) {
+  // this is usually equal to the principalId of the user or service principal in Azure AD
+  const base64 = token.split('.')[1];
+  return JSON.parse(Buffer.from(base64, 'base64').toString()).oid;
+}
+
 async function getDatabaseConnection() {
   if (sql) return sql;
 
   const connectionString = process.env.AZURE_DATABASE_URL;
   const databaseUser = process.env.AZURE_DATABASE_USER;
-  const appName = process.env.APP_NAME;
   const databasePassword = process.env.AZURE_DATABASE_PASSWORD;
 
   if (!connectionString) {
@@ -48,13 +53,14 @@ async function getDatabaseConnection() {
     const credential = new DefaultAzureCredential();
     const token = await credential.getToken('https://ossrdbms-aad.database.windows.net/.default');
 
-    if (token?.token && appName) {
+    if (token?.token) {
       console.log('Successfully obtained Azure AD token');
+      console.log(token);
       sql = postgres({
         host,
         port: portNumber,
-        database,
-        username: appName,
+        database: database,
+        username: getOidFromToken(token.token),
         password: token.token,
         ssl: { rejectUnauthorized: false },
         max: 10,
